@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from "react";
+import { createContext, useEffect, useState } from "react";
 
 const AuthContext = createContext(null);
 
@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
         // Check local storage on initial load
         const storedUser = localStorage.getItem("inv_user");
         const token = localStorage.getItem("inv_auth_token");
-        
+
         if (storedUser && token) {
             try {
                 setUser(JSON.parse(storedUser));
@@ -35,7 +35,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, loading }}>
+        <AuthContext.Provider
+            value={{ user, login, logout, isAuthenticated: !!user, loading }}
+        >
             {!loading && children}
         </AuthContext.Provider>
     );

@@ -18,36 +18,76 @@ const useAuth = () => {
     // Enhanced logout with proper redirect
     const handleLogout = async () => {
         try {
-            console.log("🚪 Logging out...");
+            console.log("🚪 [1] Starting logout process...");
+            console.log("   📍 Current origin:", window.location.origin);
 
-            // Option 1: Standard logout with redirect to your app's home page
+            // Prepare logout URL
             const logoutUrl = window.location.origin + "/";
+            console.log("   🔗 Redirect URI:", logoutUrl);
 
-            // Option 2: If using React Router, navigate first then logout
-            // navigate("/"); // Navigate to home first
+            // Check Keycloak state before logout
+            console.log("   🔐 Keycloak state before logout:");
+            console.log("      - Authenticated:", keycloak.authenticated);
+            console.log("      - Token exists:", !!keycloak.token);
+            console.log("      - Realm:", keycloak.realm);
+            console.log("      - ClientId:", keycloak.clientId);
+
+            await new Promise((resolve) => setTimeout(resolve, 5000));
 
             // Perform Keycloak logout
+            console.log("🚪 [2] Calling keycloak.logout()...");
             await keycloak.logout({
-                redirectUri: logoutUrl, // Explicitly set redirect URI
-                // Or if you want to redirect to Keycloak's login page:
-                // redirectUri: window.location.origin + "/login"
+                redirectUri: logoutUrl,
             });
+
+            console.log("✅ [3] Logout successful!");
+            console.log("   🔐 Keycloak state after logout:");
+            console.log("      - Authenticated:", keycloak.authenticated);
         } catch (error) {
-            console.error("❌ Logout failed:", error);
+            console.error("❌ [ERROR] Logout failed:", error);
+            console.error("   Error details:", {
+                name: error.name,
+                message: error.message,
+                stack: error.stack,
+            });
+
             // Fallback: clear local session and redirect
+            console.log(
+                "🔄 [FALLBACK] Clearing local storage and redirecting...",
+            );
             localStorage.clear();
             sessionStorage.clear();
+            console.log("   ✅ Local storage cleared");
+
+            console.log("🔀 Redirecting to homepage...");
             window.location.href = "/";
         }
+
+        console.log("🏁 [END] Logout process completed");
     };
 
     // Enhanced login with options
     const handleLogin = (options = {}) => {
-        console.log("🔐 Logging in...");
+        console.log("🔐 [1] Starting login process...");
+        console.log("   📍 Current origin:", window.location.origin);
+
+        const redirectUrl = window.location.origin + "/dashboard";
+        console.log("   🔗 Redirect URI after login:", redirectUrl);
+
+        console.log("   🔐 Keycloak state before login:");
+        console.log("      - Authenticated:", keycloak.authenticated);
+        console.log("      - Realm:", keycloak.realm);
+        console.log("      - ClientId:", keycloak.clientId);
+
+        console.log("🔐 [2] Calling keycloak.login()...");
         keycloak.login({
-            redirectUri: window.location.origin + "/dashboard", // Where to go after login
+            redirectUri: redirectUrl,
             ...options,
         });
+
+        console.log(
+            "🔐 [3] Login redirect initiated - waiting for Keycloak...",
+        );
     };
 
     // Check if token is expired and refresh if needed
